@@ -11,6 +11,11 @@ import (
 	"strings"
 )
 
+const (
+	refs = "-0"
+	defs  = "-1"
+)
+
 func findProjRoot(uri string) string {
 	path := uri[7:] // trim "file://" from uri
 
@@ -25,24 +30,25 @@ func findProjRoot(uri string) string {
 	return ""
 }
 
-func GetDefinition(id int, logger *log.Logger, uri string, sym string) []lsp.Location {
-	var defs []lsp.Location
+func getResults(logger *log.Logger, uri string, sym string, op string) []lsp.Location {
+	var res []lsp.Location
 
 	projRoot := findProjRoot(uri)
 	cs_db := filepath.Join(projRoot, "cscope.out")
 
 	logger.Printf("projRoot: %s", projRoot)
+	logger.Printf("op: %s", op)
 
-	out, err := exec.Command("cscope", "-dL", "-f", cs_db, "-1", sym).Output()
+	out, err := exec.Command("cscope", "-dL", "-f", cs_db, op, sym).Output()
 
 	if err != nil {
 		logger.Printf("Err: %s", err)
-		return defs
+		return res
 	}
 
-	res := strings.Split(string(out), "\n")
+	cs_res := strings.Split(string(out), "\n")
 
-	for _, r := range res {
+	for _, r := range cs_res {
 		if r == "" {
 			continue
 		}
@@ -53,7 +59,7 @@ func GetDefinition(id int, logger *log.Logger, uri string, sym string) []lsp.Loc
 		lnum, _ := strconv.Atoi(sp[2])
 
 		logger.Printf("fname: %s lnum: %d", fname, lnum)
-		defs = append(defs, lsp.Location{
+		res = append(res, lsp.Location{
 			URI: fmt.Sprintf("file://%s/%s", projRoot, fname),
 			Range: lsp.Range{
 				Start: lsp.Position{
@@ -67,5 +73,13 @@ func GetDefinition(id int, logger *log.Logger, uri string, sym string) []lsp.Loc
 			},
 		})
 	}
-	return defs
+	return res
+}
+
+func GetDefinition(logger *log.Logger, uri string, sym string) []lsp.Location {
+	return getResults(logger, uri, sym, defs)
+}
+
+func GetReferences(logger *log.Logger, uri string, sym string) []lsp.Location {
+	return getResults(logger, uri, sym, refs)
 }

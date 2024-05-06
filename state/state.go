@@ -57,9 +57,30 @@ func (s *State) Definition(id int, uri string, logger *log.Logger, position lsp.
 	logger.Printf("line: %s", line)
 	logger.Printf("word: %s", word)
 
-	defs := cscope_if.GetDefinition(id, logger, uri, word)
+	defs := cscope_if.GetDefinition(logger, uri, word)
 
 	return lsp.DefinitionResponse{
+		Response: lsp.Response{
+			RPC: "2.0",
+			ID:  &id,
+		},
+		Result: defs,
+	}
+}
+
+func (s *State) References(id int, uri string, logger *log.Logger, position lsp.Position) lsp.ReferencesResponse {
+	logger.Printf("uri: %s", uri)
+	logger.Printf("position.Line: %d", position.Line)
+	logger.Printf("position.Char: %d", position.Character)
+
+	line := strings.Split(s.Documents[uri], "\n")[position.Line]
+	word := extractWord(line, position.Character)
+	logger.Printf("line: %s", line)
+	logger.Printf("word: %s", word)
+
+	defs := cscope_if.GetReferences(logger, uri, word)
+
+	return lsp.ReferencesResponse{
 		Response: lsp.Response{
 			RPC: "2.0",
 			ID:  &id,

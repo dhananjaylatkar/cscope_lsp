@@ -84,6 +84,18 @@ func handleMessage(logger *log.Logger, writer io.Writer, state state.State, meth
 
 		writeResponse(writer, response)
 
+	case "textDocument/references":
+		var request lsp.ReferencesRequest
+		if err := json.Unmarshal(contents, &request); err != nil {
+			logger.Printf("textDocument/references: %s", err)
+			return
+		}
+
+		// Create a response
+		response := state.References(request.ID, request.Params.TextDocument.URI, logger, request.Params.Position)
+
+		writeResponse(writer, response)
+
 	}
 }
 

@@ -27,6 +27,7 @@ type InitializeResult struct {
 type ServerCapabilities struct {
 	TextDocumentSync   int  `json:"textDocumentSync"`
 	DefinitionProvider bool `json:"definitionProvider"`
+	ReferencesProvider bool `json:"referencesProvider"`
 }
 
 type ServerInfo struct {
@@ -44,6 +45,7 @@ func NewInitializeResponse(id int) InitializeResponse {
 			Capabilities: ServerCapabilities{
 				TextDocumentSync:   1,
 				DefinitionProvider: true,
+				ReferencesProvider: true,
 			},
 			ServerInfo: ServerInfo{
 				Name:    "cscope_lsp",
