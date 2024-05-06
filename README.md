@@ -7,6 +7,7 @@ This LSP implementation uses cscope to get results quickly.
 
 ## Supported Capabilities
 1. textDocument/definition
+2. textDocument/references
 
 ## Thanks
 Used [educationalsp](https://github.com/tjdevries/educationalsp) as starter template.
