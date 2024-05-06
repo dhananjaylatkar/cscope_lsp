@@ -20,34 +20,44 @@ func (s *State) Update(uri, text string) {
 	s.Documents[uri] = text
 }
 
-func isWordDelim(c byte) bool {
-	return c == ' ' || c == '(' || c == ')' || c == '*' || c == '-' || c == '>' || c == '<' || c == ',' || c == '.'
+func isWordChar(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_'
 }
 
-func (s *State) Definition(id int, uri string, logger *log.Logger, position lsp.Position) lsp.DefinitionResponse {
-	logger.Printf("URI: %s", uri)
-	logger.Printf("Position.line: %d", position.Line)
-	logger.Printf("Position.char: %d", position.Character)
-	line := strings.Split(s.Documents[uri], "\n")[position.Line]
+func extractWord(line string, pos int) string {
+	start := pos
+	end := pos
 
-	start := position.Character
-	end := position.Character
-
-	for start > 0 && !isWordDelim(line[start]) {
+	for start > 0 && isWordChar(line[start]) {
 		start--
 	}
 
-	if isWordDelim(line[start]) {
+	if !isWordChar(line[start]) {
 		start++
 	}
 
-	for end < len(line) && !isWordDelim(line[end]) {
+	for end < len(line) && isWordChar(line[end]) {
 		end++
 	}
 
+	if start >= end {
+		return ""
+	}
+
+	return line[start:end]
+}
+
+func (s *State) Definition(id int, uri string, logger *log.Logger, position lsp.Position) lsp.DefinitionResponse {
+	logger.Printf("uri: %s", uri)
+	logger.Printf("position.Line: %d", position.Line)
+	logger.Printf("position.Char: %d", position.Character)
+	line := strings.Split(s.Documents[uri], "\n")[position.Line]
+	word := extractWord(line, position.Character)
+
 	logger.Printf("line: %s", line)
-	logger.Printf("word: %s", line[start:end])
-	defs := cscope_if.GetDefinition(id, logger, uri, line[start:end])
+	logger.Printf("word: %s", word)
+
+	defs := cscope_if.GetDefinition(id, logger, uri, word)
 
 	return lsp.DefinitionResponse{
 		Response: lsp.Response{
