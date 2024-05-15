@@ -1,7 +1,7 @@
 package cscope_if
 
 import (
-	"cscope_lsp/lsp"
+	"github.com/dhananjaylatkar/cscope_lsp/lsp"
 	"fmt"
 	"log"
 	"os"

@@ -2,9 +2,9 @@ package main
 
 import (
 	"bufio"
-	"cscope_lsp/lsp"
-	"cscope_lsp/rpc"
-	"cscope_lsp/state"
+	"github.com/dhananjaylatkar/cscope_lsp/lsp"
+	"github.com/dhananjaylatkar/cscope_lsp/rpc"
+	"github.com/dhananjaylatkar/cscope_lsp/state"
 	"encoding/json"
 	"io"
 	"log"
