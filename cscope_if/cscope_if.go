@@ -13,7 +13,7 @@ import (
 
 const (
 	refs = "-0"
-	defs  = "-1"
+	defs = "-1"
 )
 
 func findProjRoot(uri string) string {
@@ -58,9 +58,18 @@ func getResults(logger *log.Logger, uri string, sym string, op string) []lsp.Loc
 		fname := sp[0]
 		lnum, _ := strconv.Atoi(sp[2])
 
+		fpath := "file://"
+		if fname[0] != '/' {
+			fpath = fmt.Sprintf("%s%s/%s", fpath, projRoot, fname)
+		} else {
+			fpath = fmt.Sprintf("%s%s", fpath, fname)
+		}
+
 		logger.Printf("fname: %s lnum: %d", fname, lnum)
+		logger.Printf("fpath: %s", fpath)
+
 		res = append(res, lsp.Location{
-			URI: fmt.Sprintf("file://%s/%s", projRoot, fname),
+			URI: fpath,
 			Range: lsp.Range{
 				Start: lsp.Position{
 					Line:      lnum - 1,
