@@ -52,6 +52,17 @@ func handleMessage(logger *log.Logger, writer io.Writer, state state.State, meth
 		writeResponse(writer, msg)
 
 		logger.Print("Sent the reply")
+	case "shutdown":
+		var request lsp.ShutdownRequest
+		if err := json.Unmarshal(contents, &request); err != nil {
+			logger.Printf("shutdown: %s", err)
+		}
+
+		// sent shutdown response
+		msg := lsp.NewShutdownResponse(request.ID)
+		writeResponse(writer, msg)
+
+		logger.Print("Shutdown")
 	case "textDocument/didOpen":
 		var request lsp.DidOpenTextDocumentNotification
 		if err := json.Unmarshal(contents, &request); err != nil {
