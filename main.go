@@ -11,11 +11,18 @@ import (
 	"os"
 )
 
+const (
+	initBufSize = 64 * 1024
+	maxBufSize = 10 * 1024 * 1024
+)
+
 func main() {
 	logger := getLogger("/tmp/cscope_lsp.log")
 	logger.Println("Started!")
 
 	scanner := bufio.NewScanner(os.Stdin)
+	buf := make([]byte, 0, initBufSize)
+	scanner.Buffer(buf, maxBufSize)
 	scanner.Split(rpc.Split)
 
 	writer := os.Stdout
